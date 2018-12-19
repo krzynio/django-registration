@@ -12,6 +12,7 @@ from django.core import signing
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.core.mail import EmailMessage
 
 from django_registration import signals
 from django_registration.exceptions import ActivationError
@@ -104,8 +105,9 @@ class RegistrationView(BaseRegistrationView):
             context=context,
             request=self.request
         )
-        user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL, kwargs={ 'extra_headers': {'X-MC-AutoHtml': 'true'}})
-
+        email = EmailMessage(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], headers = {'X-MC-AutoHtml': 'true'})
+        email.send(fail_silently=False)
+       
 
 class ActivationView(BaseActivationView):
     """
